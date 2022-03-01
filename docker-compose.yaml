@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  trio-task:
+    build: ./flask-app/
+    ports:
+    - target: 5000
+      published: 5000
+      protocol: tcp
+    environment:
+      DATABASE_URI: 'mysql+pymysql://root:root@sqldb_container:3306/flask-db'
+    container_name: triotask_container
+  nginx:
+    image: nginx:latest
+    ports:
+    - target: 80
+      published: 80
+      protocol: tcp
+    volumes:
+    - type: bind
+      source: ./nginx/nginx.conf
+      target: /etc/nginx/nginx.conf
+    container_name: nginx_container
+  mysql:
+    image: sqldbimage:latest
+    volumes:
+      - data_volume:/var/lib/mysql
+    container_name: sqldb_container
+
+volumes:
+  data_volume:
+      external: true
+      name: data_volume
